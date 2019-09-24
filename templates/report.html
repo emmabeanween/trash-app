@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html>
+  <head>
+   <link rel="stylesheet" type="text/css" href="{{ url_for('static',filename='styles/report.css')}}">
+  </head>
+
+  <body>
+
+{% include 'header.html' %}
+
+</br></br>
+
+<h1>report</h1>
+
+
+<i class="fa fa-trash-o" id="trash"></i></br></br>
+<form class="reportform" id="reportform" onsubmit="return false;">
+  <div class="form-group">
+    <label for="address">address</label>
+    
+      <input class="form-control" id="address"
+             placeholder="12 California Street..."
+             onFocus="geolocate()"
+             type="text" required/>
+  </div>
+
+  <button type="submit" class="btn btn-primary">submit</button>
+</form>
+
+
+
+
+<script src="https://www.gstatic.com/firebasejs/6.3.1/firebase-app.js"></script>
+<script  src="https://www.gstatic.com/firebasejs/6.3.1/firebase-database.js"></script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyA7bnv1YbmqxLYfMfkfoWLI0Pu0DTlq4XY&libraries=places&callback=initAutocomplete"
+
+        async defer></script>
+      <script>
+      
+        //AIzaSyA1BgSPIhGv4Kibq3uLbGkJiwkVTT1GyRA
+      var firebaseConfig = {
+    apiKey: "AIzaSyA7bnv1YbmqxLYfMfkfoWLI0Pu0DTlq4XY",
+    authDomain: "test-30d33.firebaseapp.com",
+    databaseURL: "https://test-30d33.firebaseio.com",
+    projectId: "test-30d33",
+    storageBucket: "",
+    messagingSenderId: "789423764276",
+    appId: "1:789423764276:web:3e6d44dcdcfd21e4"
+  };
+  firebase.initializeApp(firebaseConfig);
+</script>
+
+
+
+   
+<script>
+
+var autocomplete
+
+function initAutocomplete() {
+
+var defaultBounds = new google.maps.LatLngBounds(
+  // set to SF bounds
+  new google.maps.LatLng(37.7154655, -122.536648),
+  new google.maps.LatLng(37.8436953,-122.4834654));
+  autocomplete = new google.maps.places.Autocomplete(
+      document.getElementById('address'), {types: ['geocode'], bounds:defaultBounds});
+  // limit autocomplete to SF addresses only
+  autocomplete.setFields(['address_component']);
+
+}
+
+
+document.getElementById('reportform').addEventListener("submit",function(e) {
+
+// get value of address
+var address = document.getElementById("address").value;
+// get the datetime for a report
+var date = new Date();
+var datetime = date.toLocaleString();
+// generate a random id for the report
+var randId = Math.random().toString(36).substring(7);
+// retrieve the coordinates for that address
+var geocoder = new google.maps.Geocoder();
+geocoder.geocode({'address': address}, function(results, status){
+// check that it is a valid address
+if (status == google.maps.GeocoderStatus.OK && results.length > 0){
+var location = results[0].geometry.location;
+// get the latitude and longitude of the report
+var latitude = location.lat();
+var longitude = location.lng();
+
+// check if an active report already exists at that address
+seeifReportExists(address, datetime, randId, latitude, longitude);
+
+}});
+
+});
+
+
+function seeifReportExists(address, datetime, randId, latitude, longitude){
+
+
+var unresolvedreports = 0;
+var ref = firebase.database().ref("Reports")
+ref.orderByChild("address").equalTo(address).once("value",snapshot => {
+    if (snapshot.exists()){
+
+
+       snapshot.forEach(function(child) {
+
+
+               
+            var resolved =  child.val().resolved;
+            if (resolved=="false"){
+   
+                unresolvedreports = unresolvedreports + 1;
+             
+            }
+  
+       });
+
+       if (unresolvedreports == 0){
+            // can add a new report, as no active report exist at that address (though at least one has existed in the past)
+            addReport(address, datetime, randId, latitude, longitude);
+
+
+       }
+
+       else {
+
+           // an active unresolved report exists at that location, flash error message
+           var errorMessage = document.createElement('div');
+            errorMessage.innerHTML = "<div style='margin-top: 20px;' class='alert alert-danger alert-dismissible'><a href='#' class='close' data-dismiss='alert' aria-label='close'>&times;</a>an active report already exists at that address.</div>";
+            document.body.appendChild(errorMessage);
+
+       }
+
+     }
+
+    else {
+         // there has never been a report, either resolved or active, at that address
+         addReport(address, datetime, randId, latitude, longitude);
+
+    }
+
+
+});
+
+
+
+}
+
+function addReport(address, datetime, id, latitude, longitude){
+
+// add SF trash report to firebase
+console.log(address + datetime + id + latitude + longitude);
+var ref = firebase.database().ref('Reports')
+ref.child(id).set({
+address: address,
+latitude: latitude,
+longitude: longitude,
+time: datetime,
+resolved: "false"
+
+});
+
+var successMessage = document.createElement('div');
+successMessage.innerHTML = "<div style='margin-top: 20px;' class='alert alert-success alert-dismissible'><a href='#' class='close' data-dismiss='alert' aria-label='close'>&times;</a>new report added.</div>";
+document.body.appendChild(successMessage);
+
+
+}
+
+
+    </script>
+
+  </body>
+</html>

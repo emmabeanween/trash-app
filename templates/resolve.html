@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+ <meta name="viewport" content="initial-scale=1.0, user-scalable=no">
+    <meta charset="utf-8">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static',filename='styles/resolve.css')}}">
+</head>
+<body>
+
+<a href='http://127.0.0.1:5000/map' class="back"><button class="btn"><img src="https://img.icons8.com/ios-glyphs/30/000000/back.png"></button></a>
+
+
+<h1>resolve report</h1>
+<h2><span id="address"></span></h2>
+<form action="" id="form" >
+  <div class="form-group">
+    <textarea class="form-control" placeholder="trash was bad but cleaning crew came in and saved the day" id="notes" required></textarea>
+  </div>
+    <button type="submit" class="btn btn-primary" id="submit">submit</button>
+</form>
+
+
+ <script src="https://www.gstatic.com/firebasejs/6.3.1/firebase-app.js"></script>
+<script  src="https://www.gstatic.com/firebasejs/6.3.1/firebase-auth.js"></script>
+<script  src="https://www.gstatic.com/firebasejs/6.3.1/firebase-firestore.js"></script>
+<script  src="https://www.gstatic.com/firebasejs/6.3.1/firebase-database.js"></script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyA1BgSPIhGv4Kibq3uLbGkJiwkVTT1GyRA&libraries=places"
+        async defer></script>
+      <script>
+      var firebaseConfig = {
+    apiKey: "AIzaSyA7bnv1YbmqxLYfMfkfoWLI0Pu0DTlq4XY",
+    authDomain: "test-30d33.firebaseapp.com",
+    databaseURL: "https://test-30d33.firebaseio.com",
+    projectId: "test-30d33",
+    storageBucket: "",
+    messagingSenderId: "789423764276",
+    appId: "1:789423764276:web:3e6d44dcdcfd21e4"
+  };
+  firebase.initializeApp(firebaseConfig);
+
+</script>
+
+
+<script>
+
+// get the current address and append it to the form
+firebase.database().ref("Reports/" + "{{post_id}}").once("value", function(snapshot){
+// 
+var currentAddress = snapshot.val().address;
+document.getElementById('address').innerHTML = "at" +  " " + currentAddress;
+
+
+});
+
+
+ document.getElementById('form').addEventListener("submit",function(e) {
+    e.preventDefault(); 
+
+    // add resolved report
+     notes = document.getElementById("notes").value;
+    var ref = firebase.database().ref('Reports/' + "{{post_id}}").once('value', (snapshot) => {
+     
+          snapshot.ref.update({resolved: "true", notes: notes})
+          // show alert
+          var resolvedMessage = document.createElement('div');
+          resolvedMessage.innerHTML = "<div style='margin-top: 20px;' class='alert alert-info alert-dismissible'><a href='#' class='close' data-dismiss='alert' aria-label='close'>&times;</a>report resolved. </div>";
+          document.body.appendChild(resolvedMessage);
+          // redirect
+          window.location.href = "http://127.0.0.1:5000/map"; 
+
+
+    });
+
+    
+  });
+
+
+
+
+
+</script>
+
+
+
+
+
+</body>
+</html>

@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<link rel="stylesheet" type="text/css" href="{{ url_for('static',filename='styles/map.css')}}">
+	<title>Trash App</title>
+</head>
+<body>
+
+
+
+{% include 'header.html' %}
+
+
+
+
+
+
+</br></br>
+<img class="icon" src="https://img.icons8.com/clouds/100/000000/trash.png" width="35" height="35"><span>= trash</span>
+<div id="map"></div>
+
+
+
+
+  <script src="https://www.gstatic.com/firebasejs/6.3.1/firebase-app.js"></script>
+	<script  src="https://www.gstatic.com/firebasejs/6.3.1/firebase-database.js"></script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyA1BgSPIhGv4Kibq3uLbGkJiwkVTT1GyRA&libraries=places&callback=initReports"
+        async defer></script>
+      <script>
+      var firebaseConfig = {
+    apiKey: "AIzaSyA7bnv1YbmqxLYfMfkfoWLI0Pu0DTlq4XY",
+    authDomain: "test-30d33.firebaseapp.com",
+    databaseURL: "https://test-30d33.firebaseio.com",
+    projectId: "test-30d33",
+    storageBucket: "",
+    messagingSenderId: "789423764276",
+    appId: "1:789423764276:web:3e6d44dcdcfd21e4"
+  };
+  firebase.initializeApp(firebaseConfig);
+
+</script>
+
+
+<script type="text/javascript">
+
+function initReports(){
+
+// retrieve all reports to place on the map
+var latitudes = [];
+var longitudes = [];
+var addresses = [];
+var times = [];
+var ids = [];
+var ref = firebase.database().ref("Reports")
+ref.orderByChild("resolved").equalTo("false").on("child_added", function(snapshot) {
+	
+	latitudes.push(snapshot.val().latitude);
+	longitudes.push(snapshot.val().longitude);
+	addresses.push(snapshot.val().address);
+	times.push(snapshot.val().time);
+	ids.push(snapshot.key);
+
+createMap(latitudes, longitudes, addresses, times, ids);
+
+});
+
+
+
+}
+
+ var infowindow
+
+function createMap(latitudes, longitudes, addresses, times, ids){
+
+   var map = new google.maps.Map(document.getElementById('map'), {
+          zoom: 12, 
+          center: {lat: 37.7818887, lng: -122.4382713}
+        });
+
+
+
+ for (var i = 0; i < latitudes.length; i++) {
+          var lat = latitudes[i];
+          var long = longitudes[i];
+          var icon = {
+    		url: "https://img.icons8.com/clouds/100/000000/trash.png",
+    		scaledSize: new google.maps.Size(35, 35)
+		 };
+
+          var marker = new google.maps.Marker({
+            position: {lat: lat, lng: long},
+            map: map,
+            icon: icon
+          });
+
+  infowindow = new google.maps.InfoWindow({
+           
+        });       
+
+    var address = addresses[i]; 
+    var time = times[i];
+    var content = address + ' ' + time + '</br>' + "<a href=" + 'resolve/' + ids[i] + ">report resolved</a>"; 
+    google.maps.event.addListener(marker, 'click', (function(marker, content) {
+            return function() {
+                infowindow.setContent(content);
+                infowindow.open(map, marker);
+            }
+        })(marker, content));
+
+
+
+}}
+
+
+</script>
+
+</body>
+</html>

@@ -1,0 +1,13 @@
+	#map{
+
+			width: 650px;
+			height: 350px;
+			margin-left: 300px;
+			background-color: gray;
+			border: 1px solid gray;
+		}
+
+		.icon{
+
+			margin-left: 300px;
+		}

@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta name="viewport" content="initial-scale=1.0, user-scalable=no">
+    <meta charset="utf-8">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css">
+     <link rel="stylesheet" type="text/css" href="{{ url_for('static',filename='styles/past.css')}}">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+	<title>Trash App</title>
+</head>
+<body>
+
+<a href='http://127.0.0.1:5000/table' class="back"><button class="btn"><img src="https://img.icons8.com/ios-glyphs/30/000000/back.png"></button></a>
+
+
+  <h1>past reports</h1>       
+  <table class="table table-hover" id="table">
+    <thead>
+      <tr>
+        <th>date</th>
+        <th>place</th>
+        <th>note</th>
+      </tr>
+    </thead>
+    <tbody>
+    </tbody>
+  </table>
+
+
+
+<!--firebase here-->
+<script src="https://www.gstatic.com/firebasejs/6.3.1/firebase-app.js"></script>
+<script  src="https://www.gstatic.com/firebasejs/6.3.1/firebase-database.js"></script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyA1BgSPIhGv4Kibq3uLbGkJiwkVTT1GyRA&libraries=places"
+        async defer></script>
+      <script>
+      var firebaseConfig = {
+    apiKey: "AIzaSyA7bnv1YbmqxLYfMfkfoWLI0Pu0DTlq4XY",
+    authDomain: "test-30d33.firebaseapp.com",
+    databaseURL: "https://test-30d33.firebaseio.com",
+    projectId: "test-30d33",
+    storageBucket: "",
+    messagingSenderId: "789423764276",
+    appId: "1:789423764276:web:3e6d44dcdcfd21e4"
+  };
+  firebase.initializeApp(firebaseConfig);
+
+</script>
+
+
+
+<script type="text/javascript">
+
+
+var addresses = [];
+var times  = [];
+var arr = [];
+
+
+// get all resolved reports
+var ref = firebase.database().ref("Reports")
+ref.orderByChild("resolved").equalTo("true").once("value", snapshot => {
+  
+   snapshot.forEach(function(childSnapshot) {
+
+    var value = childSnapshot.val();
+    arr.push({
+    time: value.time,
+    address: value.address,
+    note: value.notes
+    });
+
+});
+
+
+// sort so the newest resolved reports show first
+arr.sort(function
+(a,b){return new Date(b.time) - new Date(a.time)});
+console.log(arr);
+
+
+for (var i = 0; i < arr.length; i++){
+
+// append to a table with JQuery
+$(table).find('tbody').append( "<tr><td>" + arr[i].time + "</td><td>" + arr[i].address + "</td><td>" + arr[i].note + "</td></tr>" );
+
+}
+
+
+
+});
+
+
+</script>
+
+
+</body>
+</html>

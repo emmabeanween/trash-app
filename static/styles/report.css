@@ -1,0 +1,34 @@
+.reportform{
+
+       width: 40%;
+       margin-left: 400px;
+       padding: 20px 15px;
+       border: 1px solid lightblue;
+       background-color: #e1e8e3;
+
+
+ }
+
+  
+   h1 {
+         
+         margin-left: 580px;
+       
+      }
+
+  #trash{
+
+    font-size: 36px;
+    margin-left: 620px;
+  }
+        
+
+
+    #map {
+
+     width: 200px;
+    height: 200px;
+    background-color: gray;
+    
+  }
+    

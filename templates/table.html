@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+	<title>Trash App</title>
+	 <link rel="stylesheet" type="text/css" href="{{ url_for('static',filename='styles/table.css')}}">
+</head>
+
+<body>
+
+
+
+
+{%  include 'header.html' %}
+
+
+</br></br>
+
+  <h1>current reports</h1>       
+  <table class="table table-hover" id="table">
+    <thead>
+      <tr>
+        <th>date</th>
+        <th>place</th>
+      </tr>
+    </thead>
+    <tbody>
+    </tbody>
+  </table>
+
+
+<div class="container"><a href='past' class="past">past reports</a></div>
+
+
+
+
+<script src="https://www.gstatic.com/firebasejs/6.3.1/firebase-app.js"></script>
+<script  src="https://www.gstatic.com/firebasejs/6.3.1/firebase-auth.js"></script>
+<script  src="https://www.gstatic.com/firebasejs/6.3.1/firebase-firestore.js"></script>
+<script  src="https://www.gstatic.com/firebasejs/6.3.1/firebase-database.js"></script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyA1BgSPIhGv4Kibq3uLbGkJiwkVTT1GyRA&libraries=places"
+        async defer></script>
+      <script>
+      var firebaseConfig = {
+    apiKey: "AIzaSyA7bnv1YbmqxLYfMfkfoWLI0Pu0DTlq4XY",
+    authDomain: "test-30d33.firebaseapp.com",
+    databaseURL: "https://test-30d33.firebaseio.com",
+    projectId: "test-30d33",
+    storageBucket: "",
+    messagingSenderId: "789423764276",
+    appId: "1:789423764276:web:3e6d44dcdcfd21e4"
+  };
+  firebase.initializeApp(firebaseConfig);
+
+</script>
+
+
+
+<script type="text/javascript">
+
+
+var addresses = [];
+var times  = [];
+var arr = [];
+
+
+
+var ref = firebase.database().ref("Reports")
+// get all active reports 
+ref.orderByChild("resolved").equalTo("false").once("value",snapshot => {
+  
+   snapshot.forEach(function(childSnapshot) {
+
+    var value = childSnapshot.val();
+    // get the time and address of each one
+    arr.push({
+    time: value.time,
+    address: value.address,
+    });
+
+});
+
+
+// sort the array so that the newest reports are shown first in the table
+arr.sort(function
+(a,b){return new Date(b.time) - new Date(a.time)});
+console.log(arr);
+
+
+for (var i = 0; i < arr.length; i++){
+
+// append to the table with JQuery
+$(table).find('tbody').append( "<tr><td>" + arr[i].time + "</td><td>" + arr[i].address + "</td></tr>" );
+
+}
+
+
+
+});
+	
+
+</script>
+
+</body>
+</html>
